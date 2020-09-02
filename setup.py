@@ -14,14 +14,15 @@ __version__ = "1.0"
 from setuptools import setup, find_packages
 
 setup(name='Flask-RequestPreProcessor',
-      version='',
-      description='Base for all lambda',
+      version='1.0.0',
+      python_requires='>=3.6',
+      description='Preprocessor for flask requests',
       url='https://github.com/sabariramc/flask_requestpreprocesser',
       author='Sabariram',
       author_email='c.sabariram@gmail.com',
       license='MIT Licence',
       packages=find_packages(),
       install_requires=[
-          'Flask'
+          'Flask>=1.1.*'
       ],
       zip_safe=False)
