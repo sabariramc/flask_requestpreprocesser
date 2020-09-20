@@ -6,14 +6,34 @@ Date : 02-Sep-2020
 """
 
 from flask import request
+from functools import wraps
+from copy import deepcopy
 
-from .requestparser import RequestParser
+from funcargpreprocessor import FunctionArgPreProcessor
+from funcargpreprocessor.exceptions import BadArgError
 
 
-class QueryParamParser(RequestParser):
+class FlaskRequestParser(FunctionArgPreProcessor):
+
+    def __call__(self, func_obj):
+        @wraps(func_obj)
+        def inner_function(*args, **kwargs):
+
+            raw_argument = self.extract_request_data(*args, **kwargs)
+            try:
+                parsed_argument = self.parser(raw_argument, deepcopy(self.definition))
+            except BadArgError as e:
+                return str(e), 400
+            kwargs.update(parsed_argument)
+            return func_obj(*args, **kwargs)
+
+        return inner_function
+
+
+class QueryParamParser(FlaskRequestParser):
 
     def extract_request_data(self, *args, **kwargs):
-        return self.parser(self.get_normalize_query_params(), self.definition)
+        return self.get_normalize_query_params()
 
     @staticmethod
     def get_normalize_query_params():
@@ -21,27 +41,27 @@ class QueryParamParser(RequestParser):
         return {key: value if len(value) > 1 else value[0] for key, value in params_non_flat.items()}
 
 
-class JSONRequestParser(RequestParser):
+class JSONRequestParser(FlaskRequestParser):
     def extract_request_data(self, *args, **kwargs):
-        return self.parser(request.json, self.definition)
+        return request.json
 
 
-class FormRequestParser(RequestParser):
+class FormRequestParser(FlaskRequestParser):
     def extract_request_data(self, *args, **kwargs):
-        return self.parser(request.form, self.definition)
+        return request.form
 
 
-class HeaderParser(RequestParser):
+class RequestHeaderParser(FlaskRequestParser):
     def extract_request_data(self, *args, **kwargs):
-        return self.parser(request.headers, self.definition)
+        return request.headers
 
 
-class FileStreamParser(RequestParser):
+class FileStreamParser(FlaskRequestParser):
     def extract_request_data(self, *args, **kwargs):
-        return self.parser(request.files, self.definition)
+        return request.files
 
 
-def parse_request_args(query_param_definition, is_strict=True):
+def parse_request_query_param(query_param_definition, is_strict=True):
     def inner_get_fu(fu):
         return QueryParamParser(query_param_definition, is_strict=is_strict)(fu)
 
@@ -71,6 +91,6 @@ def parse_request_file(file_definition, is_strict=True):
 
 def parse_request_header(header_definition, is_strict=False):
     def inner_get_fu(fu):
-        return HeaderParser(header_definition, is_strict=is_strict)(fu)
+        return RequestHeaderParser(header_definition, is_strict=is_strict)(fu)
 
     return inner_get_fu
