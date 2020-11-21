@@ -19,7 +19,7 @@ setup(name='Flask-RequestPreProcessor',
       long_description_content_type="text/markdown",
       install_requires=[
           'Flask>=1.1.*',
-          'funcargpreprocessor==0.1.*'
+          'funcargpreprocessor==0.9.*'
       ],
       zip_safe=False, classifiers=[
         'Intended Audience :: Developers',

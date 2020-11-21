@@ -15,7 +15,7 @@ All the extracted, validated, type casted, and/or aliased parameters will be pas
     
     python>=3.6
     Flask>=1.1.*
-    funcargpreprocessor==0.1.*
+    funcargpreprocessor==0.9.*
     
 ## Usage
 
@@ -37,5 +37,6 @@ def get_user_list(page_no=1, count=10, signed_up_date=None, **other_filter_condi
     pass
 ```
 
-## Parser definition
+[Detailed Parser definition](https://github.com/sabariramc/funcargpreprocessor)
+    
     

@@ -10,7 +10,7 @@ from functools import wraps
 from copy import deepcopy
 
 from funcargpreprocessor import FunctionArgPreProcessor
-from funcargpreprocessor.exceptions import BadArgError
+from funcargpreprocessor import FieldError
 
 
 class FlaskRequestParser(FunctionArgPreProcessor):
@@ -22,8 +22,15 @@ class FlaskRequestParser(FunctionArgPreProcessor):
             raw_argument = self.extract_request_data(*args, **kwargs)
             try:
                 parsed_argument = self.parser(raw_argument, deepcopy(self.definition))
-            except BadArgError as e:
-                return str(e), 400
+            except FieldError as e:
+                return {
+                           "error": {
+                               "code": e.error_code.name
+                               , "field": e.field_name
+                               , "message": str(e)
+                               , "description": e.error_data
+                           }
+                       }, 400
             kwargs.update(parsed_argument)
             return func_obj(*args, **kwargs)
 
