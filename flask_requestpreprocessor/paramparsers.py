@@ -68,9 +68,9 @@ class FileStreamParser(FlaskRequestParser):
         return request.files
 
 
-def parse_request_query_param(query_param_definition, is_strict=True):
+def parse_request_query_param(query_param_definition, is_strict=True, auto_type_cast=True):
     def inner_get_fu(fu):
-        return QueryParamParser(query_param_definition, is_strict=is_strict)(fu)
+        return QueryParamParser(query_param_definition, is_strict=is_strict, auto_type_cast=auto_type_cast)(fu)
 
     return inner_get_fu
 
